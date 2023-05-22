@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:api/api.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
+import 'package:todo_app_vh/app/app.dart';
+import 'package:todos_repository/todos_repository.dart';
 
 class AppBlocObserver extends BlocObserver {
   const AppBlocObserver();
@@ -20,15 +23,17 @@ class AppBlocObserver extends BlocObserver {
   }
 }
 
-Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
+void bootstrap({required Api api}) {
   FlutterError.onError = (details) {
     log(details.exceptionAsString(), stackTrace: details.stack);
   };
 
   Bloc.observer = const AppBlocObserver();
 
-  await runZonedGuarded(
-    () async => runApp(await builder()),
+  final todosRepository = TodosRepository(api: api);
+
+  runZonedGuarded(
+    () async => runApp(App(todosRepository: todosRepository)),
     (error, stackTrace) => log(error.toString(), stackTrace: stackTrace),
   );
 }

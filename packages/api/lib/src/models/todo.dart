@@ -22,17 +22,19 @@ part 'todo.g.dart';
 @immutable
 @JsonSerializable()
 class Todo extends Equatable {
-
   /// {@macro todo_item}
   Todo({
     required this.title,
-    String? id,
-    this.annotation = '',
     this.isDone = false,
+    String? id,
+    int? colorThemeIndex,
+    String? annotation,
     List<String>? steps,
     List<String>? list,
     DateTime? createdAt,
   })  : id = id ?? const Uuid().v4(),
+        annotation = annotation ?? '',
+        colorThemeIndex = colorThemeIndex ?? 1,
         steps = steps ?? List.empty(),
         list = list ?? List.empty(),
         createdAt = createdAt ?? DateTime.now();
@@ -75,6 +77,11 @@ class Todo extends Equatable {
   /// Defaults to now
   final DateTime createdAt;
 
+  /// The theme color's index of the 'todo'
+  ///
+  /// Defaults to index 1
+  final int colorThemeIndex;
+
   /// Returns a copy of this `todo` with the given values updated.
   ///
   /// {@macro todo_item}
@@ -95,5 +102,12 @@ class Todo extends Equatable {
       );
 
   @override
-  List<Object?> get props => throw UnimplementedError();
+  List<Object?> get props => [
+        id,
+        title,
+        annotation,
+        steps,
+        list,
+        isDone,
+      ];
 }

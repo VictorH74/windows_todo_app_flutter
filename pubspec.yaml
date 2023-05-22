@@ -15,6 +15,12 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.17.0
+  api:
+    path: "packages/api"
+  local_storage_api:
+    path: "packages/local_storage_api"
+  todos_repository:
+    path: "packages/todos_repository"
 
 dev_dependencies:
   bloc_test: ^9.1.1

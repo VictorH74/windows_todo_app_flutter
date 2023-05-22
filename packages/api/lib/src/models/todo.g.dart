@@ -8,9 +8,10 @@ part of 'todo.dart';
 
 Todo _$TodoFromJson(Map<String, dynamic> json) => Todo(
       title: json['title'] as String,
-      id: json['id'] as String?,
-      annotation: json['annotation'] as String? ?? '',
       isDone: json['isDone'] as bool? ?? false,
+      id: json['id'] as String?,
+      colorThemeIndex: json['colorThemeIndex'] as int?,
+      annotation: json['annotation'] as String?,
       steps:
           (json['steps'] as List<dynamic>?)?.map((e) => e as String).toList(),
       list: (json['list'] as List<dynamic>?)?.map((e) => e as String).toList(),
@@ -27,4 +28,5 @@ Map<String, dynamic> _$TodoToJson(Todo instance) => <String, dynamic>{
       'isDone': instance.isDone,
       'list': instance.list,
       'createdAt': instance.createdAt.toIso8601String(),
+      'colorThemeIndex': instance.colorThemeIndex,
     };
