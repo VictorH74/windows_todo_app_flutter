@@ -1,11 +1,13 @@
 import 'package:api/api.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo_app_vh/todos_overview/bloc/todos_overview_bloc.dart';
 
 class TodoListTile extends StatefulWidget {
   const TodoListTile({
     required this.todo,
-    super.key,
-  });
+    required Key key,
+  }) : super(key: key);
 
   final Todo todo;
 
@@ -25,26 +27,57 @@ class _TodoListTileState extends State<TodoListTile> {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      tileColor: Theme.of(context).colorScheme.background,
-      leading: Transform.scale(
-        scale: 1.6,
-        child: Checkbox(
-          shape: const CircleBorder().copyWith(),
-          value: isDone,
-          onChanged: (value) {
-            setState(() {
-              isDone = value ?? false;
-            });
+    return BlocBuilder<TodosOverviewBloc, TodosOverviewState>(
+      builder: (context, state) {
+        return Dismissible(
+          key: Key(widget.todo.id),
+          onDismissed: (DismissDirection direction) {
+            if (direction == DismissDirection.endToStart) {
+              context.read<TodosOverviewBloc>().add(
+                    TodosOverviewDeletedTodo(id: widget.todo.id),
+                  );
+            }
           },
-        ),
-      ),
-      title: Text(widget.todo.title),
-      trailing: IconButton(
-        iconSize: 35,
-        icon: Icon(isImportant ? Icons.star : Icons.star_border_outlined),
-        onPressed: addToImportantList,
-      ),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 5),
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            color: Theme.of(context).colorScheme.background,
+            child: Row(
+              children: [
+                Transform.scale(
+                  scale: 1.2,
+                  child: Checkbox(
+                    shape: const CircleBorder(),
+                    value: isDone,
+                    onChanged: (value) {
+                      setState(() {
+                        isDone = value ?? false;
+                      });
+                    },
+                  ),
+                ),
+                Expanded(child: Text(widget.todo.title)),
+                Transform.scale(
+                  scale: 1.2,
+                  child: Checkbox(
+                    shape: const StarBorder().copyWith(
+                      innerRadiusRatio: 0.2,
+                      valleyRounding: 0.5,
+                      pointRounding: 0.5,
+                    ),
+                    value: isImportant,
+                    onChanged: (value) {
+                      setState(() {
+                        isImportant = value ?? false;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

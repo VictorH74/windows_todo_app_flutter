@@ -16,9 +16,9 @@ part 'todo.g.dart';
 /// will be generated.
 ///
 /// [Todo]s are immutable and can be copied using [copyWith], in addition to
-/// being serialized and deserialized using [toJson] and [fromJson]
+/// being serialized and deserialized using [toJson] and [Todo.fromJson]
 /// respectively.
-/// {@endtemplate}
+/// {@template}
 @immutable
 @JsonSerializable()
 class Todo extends Equatable {
@@ -27,20 +27,21 @@ class Todo extends Equatable {
     required this.title,
     this.isDone = false,
     String? id,
-    int? colorThemeIndex,
     String? annotation,
     List<String>? steps,
     List<String>? list,
     DateTime? createdAt,
   })  : id = id ?? const Uuid().v4(),
         annotation = annotation ?? '',
-        colorThemeIndex = colorThemeIndex ?? 1,
         steps = steps ?? List.empty(),
         list = list ?? List.empty(),
         createdAt = createdAt ?? DateTime.now();
 
   /// create new 'todo' from json
   factory Todo.fromJson(JsonMap json) => _$TodoFromJson(json);
+
+  /// convert a instance to a [JsonMap]
+  JsonMap toJson() => _$TodoToJson(this);
 
   /// The unique identifier of the 'todo'
   ///
@@ -76,11 +77,6 @@ class Todo extends Equatable {
   ///
   /// Defaults to now
   final DateTime createdAt;
-
-  /// The theme color's index of the 'todo'
-  ///
-  /// Defaults to index 1
-  final int colorThemeIndex;
 
   /// Returns a copy of this `todo` with the given values updated.
   ///

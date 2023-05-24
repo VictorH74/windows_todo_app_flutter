@@ -18,8 +18,11 @@ class LocalStorageApi extends Api {
 
   final _todoStreamController = BehaviorSubject<List<Todo>>.seeded(const []);
 
+  final _collectionStreamController = BehaviorSubject<List<TodoCollection>>.seeded(const []);
+
   void _init() {
-    final todosJson = _getValue();
+    final todosJson = _getValue(kTodosKey);
+    final collectionsJson = _getValue(kTodoCollectionsKey);
     if (todosJson != null) {
       final todos = List<Map<dynamic, dynamic>>.from(
         json.decode(todosJson) as List,
@@ -28,6 +31,15 @@ class LocalStorageApi extends Api {
     } else {
       _todoStreamController.add(const []);
     }
+
+    if (collectionsJson != null) {
+      final collections = List<Map<dynamic, dynamic>>.from(
+        json.decode(collectionsJson) as List,
+      ).map((jsonMap) => TodoCollection.fromJson(Map<String, dynamic>.from(jsonMap))).toList();
+      _collectionStreamController.add(collections);
+    } else {
+      _collectionStreamController.add(const []);
+    }
   }
 
   /// The key used to manage the todos locally.
@@ -35,23 +47,35 @@ class LocalStorageApi extends Api {
   /// This is only exposed for testing and shouldn't be used by consumers of
   ///  this library.
   @visibleForTesting
-  static const String kTodosCollectionKey = '__todos_collection_key__';
+  static const String kTodosKey = '__todos_key__';
+
+  /// The key used to manage the 'todo collections' locally.
+  ///
+  /// This is only exposed for testing and shouldn't be used by consumers of
+  ///  this library.
+  @visibleForTesting
+  static const String kTodoCollectionsKey = '__todo_collections_key__';
 
   /// call getString from _plugin passing the defined key
-  String? _getValue() => _plugin.getString(kTodosCollectionKey);
+  String? _getValue(String key) => _plugin.getString(key);
 
   /// call setValue from _plugin passing the defined key
-  Future<void> _setValue(String value) => _plugin.setString(kTodosCollectionKey, value);
+  Future<void> _setValue(String key, String value) => _plugin.setString(key, value);
 
   @override
   Stream<List<Todo>> getTodos() => _todoStreamController.asBroadcastStream();
+
+  @override
+  Stream<List<TodoCollection>> getCollections() {
+    return _collectionStreamController.asBroadcastStream();
+  }
 
   @override
   Future<void> clearCompleted() async {
     final todos = [..._todoStreamController.value]..removeWhere((t) => t.isDone);
 
     _todoStreamController.add(todos);
-    return _setValue(json.encode(todos));
+    return _setValue(kTodosKey, json.encode(todos));
   }
 
   @override
@@ -61,7 +85,7 @@ class LocalStorageApi extends Api {
     final newTodos = [for (var todo in todos) todo.copyWith(isDone: true)];
 
     _todoStreamController.add(newTodos);
-    return _setValue(json.encode(newTodos));
+    return _setValue(kTodosKey, json.encode(newTodos));
   }
 
   @override
@@ -74,8 +98,38 @@ class LocalStorageApi extends Api {
     } else {
       todos.removeAt(todoIndex);
       _todoStreamController.add(todos);
-      return _setValue(json.encode(todos));
+      return _setValue(kTodosKey, json.encode(todos));
     }
+  }
+
+  @override
+  Future<void> deleteCollection(String title) async {
+    debugPrint('Title -> $title');
+    final collections = [..._collectionStreamController.value];
+
+    final collectionIndex = collections.indexWhere((c) => c.title == title);
+
+    if (collectionIndex >= 0) {
+      collections.removeAt(collectionIndex);
+
+      final todos = [..._todoStreamController.value];
+
+      for (var i = 0; i < todos.length; i++) {
+        if (todos[i].list.contains(title)) {
+          if (todos[i].list.length == 1) {
+            todos.removeAt(i);
+          } else {
+            todos[i].list.removeWhere((str) => str == title);
+          }
+        }
+      }
+
+      _todoStreamController.add(todos);
+      await _setValue(kTodosKey, json.encode(todos));
+    }
+
+    _collectionStreamController.add(collections);
+    return _setValue(kTodoCollectionsKey, json.encode(collections));
   }
 
   @override
@@ -90,6 +144,22 @@ class LocalStorageApi extends Api {
     }
 
     _todoStreamController.add(todos);
-    return _setValue(json.encode(todos));
+    return _setValue(kTodosKey, json.encode(todos));
+  }
+
+  @override
+  Future<void> saveCollection(TodoCollection collection) async {
+    final collections = [..._collectionStreamController.value];
+    final collectionIndex = collections.indexWhere((t) => t.id == collection.id);
+
+    if (collectionIndex >= 0) {
+      collections[collectionIndex] = collection;
+    } else {
+      collections.add(collection);
+    }
+
+    _collectionStreamController.add(collections);
+
+    return _setValue(kTodoCollectionsKey, json.encode(collections));
   }
 }

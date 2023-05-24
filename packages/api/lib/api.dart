@@ -2,4 +2,4 @@
 library api;
 
 export 'src/api.dart';
-export 'src/models/todo.dart';
+export 'src/models/models.dart';
