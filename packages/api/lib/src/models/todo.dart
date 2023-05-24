@@ -95,6 +95,7 @@ class Todo extends Equatable {
         annotation: annotation ?? this.annotation,
         steps: steps ?? this.steps,
         list: list ?? this.list,
+        isDone: isDone ?? this.isDone,
       );
 
   @override

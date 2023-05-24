@@ -7,6 +7,9 @@ abstract class HomeEvent extends Equatable {
 
 class HomeSubscriptionRequest extends HomeEvent {}
 
+class HomeCollectionsSubscriptionRequest extends HomeEvent {}
+class HomeTodosSubscriptionRequest extends HomeEvent {}
+
 class HomeChangedCollection extends HomeEvent {
   HomeChangedCollection({required this.collection});
 
@@ -14,13 +17,4 @@ class HomeChangedCollection extends HomeEvent {
 
   @override
   List<Object?> get props => [collection];
-}
-
-class HomeDeletedCollection extends HomeEvent {
-  HomeDeletedCollection({required this.title});
-
-  final String title;
-
-  @override
-  List<Object?> get props => [title];
 }

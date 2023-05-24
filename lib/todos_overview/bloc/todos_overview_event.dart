@@ -24,3 +24,12 @@ class TodosOverviewChangedTodo extends TodosOverviewEvent {
 
   final Todo todo;
 }
+
+class TodosOverviewDeletedCollection extends TodosOverviewEvent {
+  TodosOverviewDeletedCollection({required this.title});
+
+  final String title;
+
+  @override
+  List<Object?> get props => [title];
+}

@@ -150,7 +150,7 @@ class LocalStorageApi extends Api {
   @override
   Future<void> saveCollection(TodoCollection collection) async {
     final collections = [..._collectionStreamController.value];
-    final collectionIndex = collections.indexWhere((t) => t.id == collection.id);
+    final collectionIndex = collections.indexWhere((t) => t.title == collection.title);
 
     if (collectionIndex >= 0) {
       collections[collectionIndex] = collection;

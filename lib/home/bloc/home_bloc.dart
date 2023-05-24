@@ -14,24 +14,41 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({required TodosRepository todosRepository})
       : _todosRepository = todosRepository,
         super(const HomeState()) {
-    on<HomeSubscriptionRequest>(_onSubscriptionRequest);
+    on<HomeCollectionsSubscriptionRequest>(_onCollectionsSubscriptionRequest);
+    on<HomeTodosSubscriptionRequest>(_onTodosSubscriptionRequest);
     on<HomeChangedCollection>(_onChangedCollection);
-    on<HomeDeletedCollection>(_onDeletedCollection);
   }
 
   final TodosRepository _todosRepository;
 
-  Future<void> _onSubscriptionRequest(
-    HomeSubscriptionRequest event,
+  Future<void> _onCollectionsSubscriptionRequest(
+    HomeCollectionsSubscriptionRequest event,
     Emitter<HomeState> emit,
   ) async {
     emit(state.copyWith(status: HomeStateStatus.loading));
     await emit.forEach(
       _todosRepository.getCollections(),
-      onData: (collections) => state.copyWith(
-        collections: collections,
-        status: HomeStateStatus.success,
-      ),
+      onData: (collections) {
+        return state.copyWith(
+          collections: collections,
+        );
+      },
+      onError: (_, __) => state.copyWith(status: HomeStateStatus.failure),
+    );
+  }
+
+  Future<void> _onTodosSubscriptionRequest(
+    HomeTodosSubscriptionRequest event,
+    Emitter<HomeState> emit,
+  ) async {
+    await emit.forEach(
+      _todosRepository.getTodos(),
+      onData: (todos) {
+        return state.copyWith(
+          todos: todos,
+          status: HomeStateStatus.success,
+        );
+      },
       onError: (_, __) => state.copyWith(status: HomeStateStatus.failure),
     );
   }
@@ -43,18 +60,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(state.copyWith(status: HomeStateStatus.loading));
     try {
       await _todosRepository.saveCollection(event.collection);
-      emit(state.copyWith(status: HomeStateStatus.success));
-    } catch (e) {
-      emit(state.copyWith(status: HomeStateStatus.failure));
-    }
-  }
-
-  Future<void> _onDeletedCollection(
-    HomeDeletedCollection event,
-    Emitter<HomeState> emit,
-  ) async {
-    try {
-      await _todosRepository.deleteCollection(event.title);
       emit(state.copyWith(status: HomeStateStatus.success));
     } catch (e) {
       emit(state.copyWith(status: HomeStateStatus.failure));
