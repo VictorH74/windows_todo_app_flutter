@@ -15,7 +15,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       : _todosRepository = todosRepository,
         super(const HomeState()) {
     on<HomeCollectionsSubscriptionRequest>(_onCollectionsSubscriptionRequest);
-    on<HomeTodosSubscriptionRequest>(_onTodosSubscriptionRequest);
     on<HomeChangedCollection>(_onChangedCollection);
   }
 
@@ -31,21 +30,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       onData: (collections) {
         return state.copyWith(
           collections: collections,
-        );
-      },
-      onError: (_, __) => state.copyWith(status: HomeStateStatus.failure),
-    );
-  }
-
-  Future<void> _onTodosSubscriptionRequest(
-    HomeTodosSubscriptionRequest event,
-    Emitter<HomeState> emit,
-  ) async {
-    await emit.forEach(
-      _todosRepository.getTodos(),
-      onData: (todos) {
-        return state.copyWith(
-          todos: todos,
           status: HomeStateStatus.success,
         );
       },

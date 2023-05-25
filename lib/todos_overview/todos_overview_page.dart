@@ -1,6 +1,8 @@
 import 'package:api/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app_vh/app/app.dart';
 import 'package:todo_app_vh/home/bloc/home_bloc.dart';
 import 'package:todo_app_vh/todos_overview/bloc/todos_overview_bloc.dart';
 import 'package:todo_app_vh/todos_overview/widgets/widgets.dart';
@@ -53,6 +55,7 @@ class TodosOverview extends StatelessWidget {
         return Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
           floatingActionButton: FloatingActionButton(
+            backgroundColor: Theme.of(context).colorScheme.primary,
             onPressed: () {
               showModalBottomSheet<void>(
                 context: context,
@@ -103,15 +106,13 @@ class TodosOverview extends StatelessWidget {
                 ],
               ),
               SliverToBoxAdapter(
-                child: StreamBuilder(
-                  stream: context.read<TodosRepository>().getTodos(),
-                  builder: (context, snapshots) {
-                    final todos =
-                        snapshots.data?.where((t) => t.list.contains(collectionTitle)) ?? const [];
+                child: Consumer<AppState>(
+                  builder: (context, state, _) {
+                    final todos = state.todos.reversed;
 
                     return Column(
                       children: [
-                        for (var todo in todos)
+                        for (var todo in todos.where((t) => t.list.contains(collectionTitle)))
                           TodoListTile(
                             todo: todo,
                             key: Key(todo.id),
@@ -152,67 +153,4 @@ Widget bottomSheet({
       ),
     ),
   );
-}
-
-class FormContainer extends StatefulWidget {
-  const FormContainer({
-    required this.handleSubmit,
-    super.key,
-  });
-
-  final void Function(String value) handleSubmit;
-
-  @override
-  State<FormContainer> createState() => _FormContainerState();
-}
-
-class _FormContainerState extends State<FormContainer> {
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  String fieldValue = '';
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 5),
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      color: Theme.of(context).colorScheme.background,
-      child: Form(
-        key: _formKey,
-        child: Row(
-          children: [
-            Transform.scale(
-              scale: 1.2,
-              child: Checkbox(
-                shape: const CircleBorder(),
-                value: false,
-                onChanged: (bool? value) {},
-              ),
-            ),
-            Expanded(
-              child: TextFormField(
-                initialValue: fieldValue,
-                onChanged: (String value) {
-                  setState(() {
-                    fieldValue = value;
-                  });
-                },
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                if (fieldValue.isEmpty) return;
-                widget.handleSubmit(fieldValue);
-                Navigator.pop(context);
-              },
-              icon: Icon(
-                Icons.add_box,
-                color: fieldValue.isEmpty ? Colors.white30 : Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

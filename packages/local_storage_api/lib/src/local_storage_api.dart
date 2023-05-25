@@ -112,17 +112,17 @@ class LocalStorageApi extends Api {
     if (collectionIndex >= 0) {
       collections.removeAt(collectionIndex);
 
-      final todos = [..._todoStreamController.value];
-
-      for (var i = 0; i < todos.length; i++) {
-        if (todos[i].list.contains(title)) {
-          if (todos[i].list.length == 1) {
-            todos.removeAt(i);
+      final todos = [..._todoStreamController.value]..removeWhere((todo) {
+        if (todo.list.contains(title)) {
+          if (todo.list.length == 1) {
+            return true;
           } else {
-            todos[i].list.removeWhere((str) => str == title);
+            todo.list.removeWhere((str) => str == title);
+            return false;
           }
         }
-      }
+        return false;
+      });
 
       _todoStreamController.add(todos);
       await _setValue(kTodosKey, json.encode(todos));

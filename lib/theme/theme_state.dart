@@ -1,7 +1,7 @@
 part of 'theme_cubit.dart';
 
 enum ThemeColor {
-  blue,
+  blue, // 1
   palePlum, // 2
   paleVioletRed, // 3
   lightCarminePink, // 4

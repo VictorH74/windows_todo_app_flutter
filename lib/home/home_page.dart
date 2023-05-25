@@ -1,6 +1,8 @@
 import 'package:api/api.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
+import 'package:todo_app_vh/app/app.dart';
 import 'package:todo_app_vh/home/home.dart';
 import 'package:todo_app_vh/theme/theme.dart';
 import 'package:todos_repository/todos_repository.dart';
@@ -17,7 +19,6 @@ class HomePage extends StatelessWidget {
           create: (_) => HomeBloc(
             todosRepository: context.read<TodosRepository>(),
           )
-            ..add(HomeTodosSubscriptionRequest())
             ..add(HomeCollectionsSubscriptionRequest()),
         )
       ],
@@ -33,62 +34,68 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Scaffold(
-      backgroundColor: scheme.surface,
-      appBar: AppBar(
-        backgroundColor: scheme.surface,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search),
-          ),
-        ],
-      ),
-      body: BlocBuilder<HomeBloc, HomeState>(
-        builder: (context, state) {
-          if (state.status == HomeStateStatus.loading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return Column(
-            children: [
-              Column(
-                children: [
-                  for (final data in mainCollectionsData)
-                    CollectionTile(
-                      data[0] as Icon,
-                      data[1] as String,
-                      state.todos.where(
-                        (t) => t.list.contains(data[1]),
-                      ).length,
-                    ),
-                ],
-              ),
-              const Divider(thickness: 1),
-              Expanded(
-                child: ListView(
-                  children: [
-                    for (var collection in state.collections)
-                      CollectionTile(
-                        const Icon(Icons.list),
-                        collection.title,
-                        state.todos.where(
-                          (t) => t.list.contains(collection.title),
-                        ).length,
-                      )
-                  ],
-                ),
+    return Consumer<AppState>(
+      builder: (context, state, _) {
+        final todos = state.todos;
+        return Scaffold(
+          backgroundColor: scheme.surface,
+          appBar: AppBar(
+            backgroundColor: scheme.surface,
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.search),
               ),
             ],
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          _showNewCollectionFormDialog(context);
-        },
-      ),
+          ),
+          body: BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              if (state.status == HomeStateStatus.loading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return Column(
+                children: [
+                  Column(
+                    children: [
+                      for (final data in mainCollectionsData)
+                        CollectionTile(
+                          data[0] as Icon,
+                          data[1] as String,
+                          todos.where(
+                            (t) => t.list.contains(data[1]),
+                          ).length,
+                        ),
+                    ],
+                  ),
+                  const Divider(thickness: 1),
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        for (var collection in state.collections)
+                          CollectionTile(
+                            const Icon(Icons.list),
+                            collection.title,
+                            todos.where(
+                              (t) => t.list.contains(collection.title),
+                            ).length,
+                          )
+                      ],
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          floatingActionButton: FloatingActionButton(
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            onPressed: () {
+              _showNewCollectionFormDialog(context);
+            },
+            child: const Icon(Icons.add),
+          ),
+        );
+      },
     );
   }
 }

@@ -1,6 +1,6 @@
 const kMainCollectionTitles = <String>[
   'My Day',
-  'important',
+  'Important',
   'Planned',
   'Assigned to me',
   'Tasks',
