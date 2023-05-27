@@ -7,6 +7,9 @@ abstract class Api {
   /// {@macro api}
   const Api();
 
+  /// Retrieve all 'collection theme'
+  Future<CollectionTheme>? getCollectionTheme(String collectionTitle);
+
   /// Retrieve all 'todo'
   Stream<List<Todo>> getTodos();
 
@@ -19,6 +22,9 @@ abstract class Api {
   /// Create or update a 'todo'
   Future<void> saveCollection(TodoCollection collection);
 
+  /// Create or update a 'collection theme'
+  Future<void> saveCollectionTheme(CollectionTheme collectionTheme);
+
   /// Delete a 'todo'
   Future<void> deleteTodo(String id);
 
@@ -27,6 +33,9 @@ abstract class Api {
 
   /// Delete all 'todo'
   Future<void> clearCompleted();
+
+  /// Delete all 'collection theme'
+  Future<void> deleteCollectionTheme(String collectionTitle);
 
   /// Update the isDone field from all 'todo' to true
   Future<void> completeAll();

@@ -56,14 +56,85 @@ class LocalStorageApi extends Api {
   @visibleForTesting
   static const String kTodoCollectionsKey = '__todo_collections_key__';
 
+  /// The key used to manage the 'collection theme' locally.
+  ///
+  /// This is only exposed for testing and shouldn't be used by consumers of
+  /// this library.
+  @visibleForTesting
+  static const String kCollectionThemesKey = '__collection_themes_key__';
+
   /// call getString from _plugin passing the defined key
   String? _getValue(String key) => _plugin.getString(key);
 
   /// call setValue from _plugin passing the defined key
-  Future<void> _setValue(String key, String value) => _plugin.setString(key, value);
+  Future<void> _setValue(
+    String key,
+    String value,
+  ) =>
+      _plugin.setString(key, value);
 
   @override
-  Stream<List<Todo>> getTodos() => _todoStreamController.asBroadcastStream();
+  Future<CollectionTheme>? getCollectionTheme(String collectionTitle) {
+    final collectionThemesJson = _getValue(kCollectionThemesKey);
+
+    if (collectionThemesJson != null) {
+      final collectionThemes = List<Map<dynamic, dynamic>>.from(
+        json.decode(collectionThemesJson) as List,
+      );
+
+      final collectionThemeIndex = collectionThemes.indexWhere(
+        (json) => json['collectionTitle'] == collectionTitle,
+      );
+
+      if (collectionThemeIndex >= 0) {
+        return Future.value(
+          CollectionTheme.fromJson(
+            JsonMap.from(collectionThemes[collectionThemeIndex]),
+          ),
+        );
+      }
+    }
+    return null;
+  }
+
+  @override
+  Future<void> saveCollectionTheme(CollectionTheme collectionTheme) async {
+    final collectionThemesJson = _getValue(kCollectionThemesKey);
+    var collectionThemes = <Map<dynamic, dynamic>>[];
+
+    if (collectionThemesJson != null) {
+      collectionThemes = List<Map<dynamic, dynamic>>.from(
+        json.decode(collectionThemesJson) as List,
+      );
+      final collectionThemeIndex = collectionThemes.indexWhere(
+        (json) => json['collectionTitle'] == collectionTheme.collectionTitle,
+      );
+      if (collectionThemeIndex >= 0) {
+        collectionThemes[collectionThemeIndex] = collectionTheme.toJson();
+      } else {
+        collectionThemes.add(collectionTheme.toJson());
+      }
+    }
+
+    return _setValue(kCollectionThemesKey, json.encode(collectionThemes));
+  }
+
+  @override
+  Future<void> deleteCollectionTheme(String collectionTitle) async {
+    final collectionThemesJson = _getValue(kCollectionThemesKey);
+    if (collectionThemesJson != null) {
+      final collectionThemes = List<Map<dynamic, dynamic>>.from(
+        json.decode(collectionThemesJson) as List,
+      )..removeWhere((json) => json['collectionTitle'] == collectionTitle);
+
+      await _setValue(kCollectionThemesKey, json.encode(collectionThemes));
+    }
+  }
+
+  @override
+  Stream<List<Todo>> getTodos() {
+    return _todoStreamController.asBroadcastStream();
+  }
 
   @override
   Stream<List<TodoCollection>> getCollections() {
@@ -72,7 +143,9 @@ class LocalStorageApi extends Api {
 
   @override
   Future<void> clearCompleted() async {
-    final todos = [..._todoStreamController.value]..removeWhere((t) => t.isDone);
+    final todos = [..._todoStreamController.value]..removeWhere(
+        (t) => t.isDone,
+      );
 
     _todoStreamController.add(todos);
     return _setValue(kTodosKey, json.encode(todos));
@@ -110,19 +183,20 @@ class LocalStorageApi extends Api {
     final collectionIndex = collections.indexWhere((c) => c.title == title);
 
     if (collectionIndex >= 0) {
+      await deleteCollectionTheme(collections[collectionIndex].title);
       collections.removeAt(collectionIndex);
 
       final todos = [..._todoStreamController.value]..removeWhere((todo) {
-        if (todo.list.contains(title)) {
-          if (todo.list.length == 1) {
-            return true;
-          } else {
-            todo.list.removeWhere((str) => str == title);
-            return false;
+          if (todo.list.contains(title)) {
+            if (todo.list.length == 1) {
+              return true;
+            } else {
+              todo.list.removeWhere((str) => str == title);
+              return false;
+            }
           }
-        }
-        return false;
-      });
+          return false;
+        });
 
       _todoStreamController.add(todos);
       await _setValue(kTodosKey, json.encode(todos));
@@ -150,7 +224,9 @@ class LocalStorageApi extends Api {
   @override
   Future<void> saveCollection(TodoCollection collection) async {
     final collections = [..._collectionStreamController.value];
-    final collectionIndex = collections.indexWhere((t) => t.title == collection.title);
+    final collectionIndex = collections.indexWhere(
+      (t) => t.title == collection.title,
+    );
 
     if (collectionIndex >= 0) {
       collections[collectionIndex] = collection;

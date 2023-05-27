@@ -33,3 +33,21 @@ class TodosOverviewDeletedCollection extends TodosOverviewEvent {
   @override
   List<Object?> get props => [title];
 }
+
+class TodosOverviewRequestThemeColor extends TodosOverviewEvent {
+  TodosOverviewRequestThemeColor({required this.collectionTitle});
+
+  final String collectionTitle;
+
+  @override
+  List<Object?> get props => [collectionTitle];
+}
+
+class TodosOverviewChangedThemeColor extends TodosOverviewEvent {
+  TodosOverviewChangedThemeColor({required this.collectionTheme});
+
+  final CollectionTheme collectionTheme;
+
+  @override
+  List<Object?> get props => [collectionTheme];
+}

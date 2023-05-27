@@ -34,20 +34,36 @@ class AppView extends StatefulWidget {
 
 class _AppViewState extends State<AppView> {
   final appState = AppState();
-  late StreamSubscription<List<Todo>> _streamSubscription;
+  late StreamSubscription<List<Todo>> _todoStreamSubscription;
+  late StreamSubscription<List<TodoCollection>> _todoCollectionStreamSubscription;
+
+  void handleError(Object? error) {
+    debugPrint(error.toString());
+  }
 
   @override
   initState() {
-    super.initState();
-    _streamSubscription = widget.todosRepository.getTodos().listen((todos) {
+    _todoStreamSubscription = widget.todosRepository.getTodos().listen((todos) {
       appState.todos = todos;
     });
+
+    _todoStreamSubscription.onError(handleError);
+
+    _todoCollectionStreamSubscription =
+        widget.todosRepository.getCollections().listen((collections) {
+          appState.collections = collections;
+        });
+
+    _todoCollectionStreamSubscription.onError(handleError);
+
+    super.initState();
   }
 
   @override
   void dispose() {
     super.dispose();
-    _streamSubscription.cancel();
+    _todoStreamSubscription.cancel();
+    _todoCollectionStreamSubscription.cancel();
   }
 
   @override

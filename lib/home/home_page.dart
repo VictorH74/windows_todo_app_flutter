@@ -43,7 +43,9 @@ class Home extends StatelessWidget {
             backgroundColor: scheme.surface,
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, SearchTodoPage.route());
+                },
                 icon: const Icon(Icons.search),
               ),
             ],

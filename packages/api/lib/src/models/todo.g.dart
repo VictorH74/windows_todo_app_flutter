@@ -11,9 +11,12 @@ Todo _$TodoFromJson(Map<String, dynamic> json) => Todo(
       isDone: json['isDone'] as bool? ?? false,
       id: json['id'] as String?,
       annotation: json['annotation'] as String?,
-      steps: (json['steps'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      steps:
+          (json['steps'] as List<dynamic>?)?.map((e) => e as String).toList(),
       list: (json['list'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      createdAt: json['createdAt'] == null ? null : DateTime.parse(json['createdAt'] as String),
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
     );
 
 Map<String, dynamic> _$TodoToJson(Todo instance) => <String, dynamic>{

@@ -15,11 +15,19 @@ class TodosRepository {
   /// Retrieve all 'todo collection'
   Stream<List<TodoCollection>> getCollections() => _api.getCollections();
 
+  /// Retrieve all 'collection theme'
+  Future<CollectionTheme>? getCollectionTheme(String collectionTitle) =>
+      _api.getCollectionTheme(collectionTitle);
+
   /// Create or update a 'todo'
   Future<void> saveTodo(Todo todo) => _api.saveTodo(todo);
 
   /// Create or update a 'todo collection'
   Future<void> saveCollection(TodoCollection collection) => _api.saveCollection(collection);
+
+  /// Create or update a 'collection theme'
+  Future<void> saveCollectionTheme(CollectionTheme collectionTheme) =>
+      _api.saveCollectionTheme(collectionTheme);
 
   /// Delete a 'todo'
   Future<void> deleteTodo(String id) => _api.deleteTodo(id);
