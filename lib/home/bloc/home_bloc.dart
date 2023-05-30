@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:api/api.dart';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:todos_repository/todos_repository.dart';
 
 part 'home_event.dart';
@@ -14,28 +11,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({required TodosRepository todosRepository})
       : _todosRepository = todosRepository,
         super(const HomeState()) {
-    on<HomeCollectionsSubscriptionRequest>(_onCollectionsSubscriptionRequest);
     on<HomeChangedCollection>(_onChangedCollection);
   }
 
   final TodosRepository _todosRepository;
-
-  Future<void> _onCollectionsSubscriptionRequest(
-    HomeCollectionsSubscriptionRequest event,
-    Emitter<HomeState> emit,
-  ) async {
-    emit(state.copyWith(status: HomeStateStatus.loading));
-    await emit.forEach(
-      _todosRepository.getCollections(),
-      onData: (collections) {
-        return state.copyWith(
-          collections: collections,
-          status: HomeStateStatus.success,
-        );
-      },
-      onError: (_, __) => state.copyWith(status: HomeStateStatus.failure),
-    );
-  }
 
   Future<void> _onChangedCollection(
     HomeChangedCollection event,

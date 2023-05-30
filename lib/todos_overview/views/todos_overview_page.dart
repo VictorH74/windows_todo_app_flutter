@@ -18,6 +18,16 @@ class TodosOverviewPage extends StatelessWidget {
 
   final String title;
 
+  static Route<void> route({required String title}) {
+    return MaterialPageRoute(
+      builder: (context) {
+        return TodosOverviewPage(
+          title: title,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<TodosOverviewBloc>(

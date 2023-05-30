@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app_vh/app/app.dart';
 import 'package:todo_app_vh/home/home.dart';
-import 'package:todo_app_vh/theme/theme.dart';
+import 'package:todo_app_vh/search_todo/search_todo.dart';
 import 'package:todos_repository/todos_repository.dart';
 
 class HomePage extends StatelessWidget {
@@ -12,16 +12,10 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (_) => ThemeCubit()),
-        BlocProvider(
-          create: (_) => HomeBloc(
-            todosRepository: context.read<TodosRepository>(),
-          )
-            ..add(HomeCollectionsSubscriptionRequest()),
-        )
-      ],
+    return BlocProvider(
+      create: (_) => HomeBloc(
+        todosRepository: context.read<TodosRepository>(),
+      ),
       child: const Home(),
     );
   }
@@ -50,44 +44,40 @@ class Home extends StatelessWidget {
               ),
             ],
           ),
-          body: BlocBuilder<HomeBloc, HomeState>(
-            builder: (context, state) {
-              if (state.status == HomeStateStatus.loading) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              return Column(
+          body: Column(
+            children: [
+              Column(
                 children: [
-                  Column(
-                    children: [
-                      for (final data in mainCollectionsData)
-                        CollectionTile(
-                          data[0] as Icon,
-                          data[1] as String,
-                          todos.where(
+                  for (final data in mainCollectionsData)
+                    CollectionTile(
+                      data[0] as Icon,
+                      data[1] as String,
+                      todos
+                          .where(
                             (t) => t.list.contains(data[1]),
-                          ).length,
-                        ),
-                    ],
-                  ),
-                  const Divider(thickness: 1),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        for (var collection in state.collections)
-                          CollectionTile(
-                            const Icon(Icons.list),
-                            collection.title,
-                            todos.where(
-                              (t) => t.list.contains(collection.title),
-                            ).length,
                           )
-                      ],
+                          .length,
                     ),
-                  ),
                 ],
-              );
-            },
+              ),
+              const Divider(thickness: 1),
+              Expanded(
+                child: ListView(
+                  children: [
+                    for (var collection in state.collections)
+                      CollectionTile(
+                        const Icon(Icons.list),
+                        collection.title,
+                        todos
+                            .where(
+                              (t) => t.list.contains(collection.title),
+                            )
+                            .length,
+                      )
+                  ],
+                ),
+              ),
+            ],
           ),
           floatingActionButton: FloatingActionButton(
             backgroundColor: Theme.of(context).colorScheme.primary,

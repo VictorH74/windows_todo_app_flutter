@@ -4,12 +4,10 @@ enum HomeStateStatus { initial, loading, success, failure }
 
 class HomeState extends Equatable {
   const HomeState({
-    this.status = HomeStateStatus.loading,
-    this.collections = const [],
+    this.status = HomeStateStatus.initial,
   });
 
   final HomeStateStatus status;
-  final List<TodoCollection> collections;
 
   HomeState copyWith({
     HomeStateStatus? status,
@@ -17,10 +15,9 @@ class HomeState extends Equatable {
   }) {
     return HomeState(
       status: status ?? this.status,
-      collections: collections ?? this.collections,
     );
   }
 
   @override
-  List<Object?> get props => [status, collections];
+  List<Object?> get props => [status];
 }

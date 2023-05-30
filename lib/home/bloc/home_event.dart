@@ -5,8 +5,6 @@ abstract class HomeEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class HomeCollectionsSubscriptionRequest extends HomeEvent {}
-
 class HomeChangedCollection extends HomeEvent {
   HomeChangedCollection({required this.collection});
 

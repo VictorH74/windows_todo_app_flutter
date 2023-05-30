@@ -12,7 +12,7 @@ class CollectionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        Navigator.push(context, TodosOverview.route(context, title));
+        Navigator.push(context, TodosOverview.route(title));
       },
       leading: leading,
       title: Text(title),

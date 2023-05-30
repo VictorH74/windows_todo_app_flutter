@@ -8,9 +8,8 @@ const String important = "Important";
 class TodoListTile extends StatefulWidget {
   const TodoListTile({
     required this.todo,
-    required this.color,
     required Key key,
-
+    this.color = Colors.white,
   }) : super(key: key);
 
   final Todo todo;

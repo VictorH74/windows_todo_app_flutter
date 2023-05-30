@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:todo_app_vh/app/app.dart';
-import 'package:todo_app_vh/counter/counter.dart';
 
 void main() {
   // group('App', () {
