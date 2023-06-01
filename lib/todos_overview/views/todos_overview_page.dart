@@ -191,6 +191,7 @@ class TodosOverview extends StatelessWidget {
               onPressed: () {
                 showModalBottomSheet<void>(
                   context: context,
+                  isScrollControlled: true,
                   builder: (_) {
                     return newTodoBottomSheet(
                       context: context,

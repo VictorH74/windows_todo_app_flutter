@@ -39,46 +39,35 @@ class Home extends StatelessWidget {
               ),
             ],
           ),
-          body: Consumer<AppState>(
-            builder: (context, state, _) {
-              return Column(
-                children: [
-                  Column(
-                    children: [
-                      for (final data in mainCollectionsData)
-                        CollectionTile(
-                          data[0] as Icon,
-                          data[1] as String,
-                          todos
-                              .where(
-                                (t) => t.list.contains(data[1]),
-                              )
-                              .length,
-                        ),
-                    ],
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                for (final data in mainCollectionsData)
+                  CollectionTile(
+                    data[0] as Icon,
+                    data[1] as String,
+                    todos
+                        .where(
+                          (t) => t.list.contains(data[1]),
+                        )
+                        .length,
                   ),
-                  const Divider(thickness: 1),
-                  Expanded(
-                    child: ListView(
-                      children: [
-                        for (var collection in state.collections)
-                          CollectionTile(
-                            const Icon(Icons.list),
-                            collection.title,
-                            todos
-                                .where(
-                                  (t) => t.list.contains(collection.title),
-                                )
-                                .length,
-                          )
-                      ],
-                    ),
+                const Divider(thickness: 1),
+                for (var collection in state.collections)
+                  CollectionTile(
+                    const Icon(Icons.list),
+                    collection.title,
+                    todos
+                        .where(
+                          (t) => t.list.contains(collection.title),
+                        )
+                        .length,
                   ),
-                ],
-              );
-            },
+                NotificationListener<ScrollNotification>(child: Container())
+              ],
+            ),
           ),
-          floatingActionButton: BlocProvider(
+          bottomNavigationBar: BlocProvider(
             create: (_) => HomeBloc(
               todosRepository: context.read<TodosRepository>(),
             ),
@@ -118,19 +107,28 @@ class Home extends StatelessWidget {
 Future<void> _showNewCollectionFormDialog(BuildContext context) async {
   return showDialog<void>(
     context: context,
-    barrierDismissible: false, // user must tap button!
+    barrierDismissible: false, // close the dialog when tab out
     builder: (_) {
       return BlocProvider(
         create: (_) => HomeBloc(
           todosRepository: context.read<TodosRepository>(),
         ),
-        child: AddCollectionForm(
-          handleSubmit: (String value) {
-            context.read<HomeBloc>().add(
-                  HomeChangedCollection(
-                    collection: TodoCollection(title: value),
-                  ),
-                );
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final childWidget = AddCollectionForm(
+              handleSubmit: (String value) {
+                context.read<HomeBloc>().add(
+                      HomeChangedCollection(
+                        collection: TodoCollection(title: value),
+                      ),
+                    );
+              },
+            );
+            final screenWidth = MediaQuery.of(context).size.width;
+            if (screenWidth > 500) {
+              return SingleChildScrollView(child: childWidget);
+            }
+            return childWidget;
           },
         ),
       );
