@@ -84,20 +84,25 @@ class Home extends StatelessWidget {
             ),
             child: BlocBuilder<HomeBloc, HomeState>(
               builder: (context, state) {
-                return Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: TextButton(
-                    onPressed: () {
-                      if (state.status == HomeStateStatus.loading) {
-                        return;
-                      }
-                      _showNewCollectionFormDialog(context);
-                    },
-                    child: Row(children: const [
-                      Icon(Icons.add, size: 30,),
-                      SizedBox(width: 5,),
-                      Text('New collection')
-                    ],),
+                return MaterialButton(
+                  onPressed: () {
+                    if (state.status == HomeStateStatus.loading) {
+                      return;
+                    }
+                    _showNewCollectionFormDialog(context);
+                  },
+                  child: Row(
+                    children: const [
+                      Icon(Icons.add, size: 35, color: Colors.white),
+                      SizedBox(width: 5),
+                      Text(
+                        'New collection',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                        ),
+                      )
+                    ],
                   ),
                 );
               },

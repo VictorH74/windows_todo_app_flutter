@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_app_vh/todos_overview/bloc/todos_overview_bloc.dart';
 
 const String important = "Important";
+const String myDay = "My Day";
 
 class TodoListTile extends StatefulWidget {
   const TodoListTile({
@@ -22,8 +23,8 @@ class TodoListTile extends StatefulWidget {
 class _TodoListTileState extends State<TodoListTile> {
   bool isDone = false;
   bool isImportant = false;
-  double checkIconLeftPadding = 15;
-  double deleteIconRightPadding = 15;
+  double paddingValue = 0;
+  late bool toMyDay;
 
   void addToImportantList() {
     setState(() {
@@ -35,6 +36,7 @@ class _TodoListTileState extends State<TodoListTile> {
   void initState() {
     isDone = widget.todo.isDone;
     isImportant = widget.todo.list.contains(important);
+    toMyDay = widget.todo.list.contains(myDay);
     super.initState();
   }
 
@@ -51,36 +53,11 @@ class _TodoListTileState extends State<TodoListTile> {
     return Dismissible(
       key: Key(widget.todo.id),
       onUpdate: (details) {
-        // debugPrint('${details.progress}');
-        if (details.direction == DismissDirection.startToEnd) {
-          if (details.progress * 100 > 15) {
-            setState(() {
-              checkIconLeftPadding = details.progress * 100;
-            });
-          }
-        }
-        if (details.direction == DismissDirection.endToStart) {
-          if (details.progress * 100 > 15) {
-            setState(() {
-              deleteIconRightPadding = details.progress * 100;
-            });
-          }
-        }
+        final unitNum = details.progress * 190;
+        setState(() {
+          paddingValue = unitNum;
+        });
       },
-      background: Container(
-        alignment: Alignment.centerLeft,
-        width: 15,
-        height: 100,
-        color: Colors.blue,
-        padding: EdgeInsets.only(left: checkIconLeftPadding, right: 15),
-        child: const Icon(Icons.check),
-      ),
-      secondaryBackground: Container(
-        alignment: Alignment.centerRight,
-        color: Colors.red,
-        padding: EdgeInsets.only(left: 15, right: deleteIconRightPadding),
-        child: const Icon(Icons.delete),
-      ),
       confirmDismiss: (direction) {
         if (direction == DismissDirection.startToEnd) {
           return Future.value(false);
@@ -94,6 +71,18 @@ class _TodoListTileState extends State<TodoListTile> {
               );
         }
       },
+      background: Container(
+        alignment: Alignment.centerLeft,
+        color: widget.collectionTitle != 'My Day' ? Colors.blue : Colors.grey,
+        padding: EdgeInsets.only(left: paddingValue),
+        child: Icon(toMyDay ? Icons.wb_sunny_outlined : Icons.wb_sunny_sharp),
+      ),
+      secondaryBackground: Container(
+        alignment: Alignment.centerRight,
+        color: Colors.red,
+        padding: EdgeInsets.only(right: paddingValue),
+        child: const Icon(Icons.delete),
+      ),
       child: Container(
         margin: const EdgeInsets.only(bottom: 5),
         padding: const EdgeInsets.symmetric(vertical: 5),

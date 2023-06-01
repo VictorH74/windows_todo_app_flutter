@@ -12,17 +12,17 @@ enum MenuButtonItem { deleteCollection, changeTheme }
 
 class TodosOverviewPage extends StatelessWidget {
   const TodosOverviewPage({
-    required this.title,
+    required this.collectionTitle,
     super.key,
   });
 
-  final String title;
+  final String collectionTitle;
 
-  static Route<void> route({required String title}) {
+  static Route<void> route({required String collectionTitle}) {
     return MaterialPageRoute(
       builder: (context) {
         return TodosOverviewPage(
-          title: title,
+          collectionTitle: collectionTitle,
         );
       },
     );
@@ -33,8 +33,8 @@ class TodosOverviewPage extends StatelessWidget {
     return BlocProvider<TodosOverviewBloc>(
       create: (context) => TodosOverviewBloc(
         todosRepository: context.read<TodosRepository>(),
-      )..add(TodosOverviewRequestThemeColor(collectionTitle: title)),
-      child: TodosOverview(title),
+      )..add(TodosOverviewRequestThemeColor(collectionTitle: collectionTitle)),
+      child: TodosOverview(collectionTitle),
     );
   }
 }
@@ -47,11 +47,11 @@ class TodosOverview extends StatelessWidget {
   final String collectionTitle;
 
   static Route<void> route(
-    String title,
+    String collectionTitle,
   ) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secAnimation) {
-        return TodosOverviewPage(title: title);
+        return TodosOverviewPage(collectionTitle: collectionTitle);
       },
       transitionsBuilder: (context, animation, secAnimation, child) {
         const begin = Offset(1, 0);
