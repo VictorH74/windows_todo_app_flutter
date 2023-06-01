@@ -23,6 +23,7 @@ dependencies:
     path: "packages/todos_repository"
   provider: ^6.0.5
   flutter_animate: ^4.1.1+1
+  just_audio: ^0.9.34
 
 dev_dependencies:
   bloc_test: ^9.1.1
