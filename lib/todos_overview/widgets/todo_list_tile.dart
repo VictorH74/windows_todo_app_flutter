@@ -10,10 +10,12 @@ class TodoListTile extends StatefulWidget {
   const TodoListTile({
     required this.todo,
     required Key key,
+    this.collectionTitle,
     this.color = Colors.white,
   }) : super(key: key);
 
   final Todo todo;
+  final String? collectionTitle;
   final Color color;
 
   @override
@@ -40,16 +42,22 @@ class _TodoListTileState extends State<TodoListTile> {
     super.initState();
   }
 
-  void updateTodo(BuildContext context, Todo todo) {
+  void updateTodo(
+    BuildContext context,
+    Todo todo,
+    TodosOverviewChangedStatus status,
+  ) {
     context.read<TodosOverviewBloc>().add(
           TodosOverviewChangedTodo(
             todo: todo,
+            changedTodoStatus: status,
           ),
         );
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('${widget.collectionTitle}');
     return Dismissible(
       key: Key(widget.todo.id),
       onUpdate: (details) {
@@ -60,6 +68,23 @@ class _TodoListTileState extends State<TodoListTile> {
       },
       confirmDismiss: (direction) {
         if (direction == DismissDirection.startToEnd) {
+          final list = widget.todo.list;
+          TodosOverviewChangedStatus status;
+          if (!toMyDay) {
+            list.add(myDay);
+            status = TodosOverviewChangedStatus.myDay;
+          } else {
+            list.removeWhere((e) => e == myDay);
+            status = TodosOverviewChangedStatus.removedFromMyDay;
+          }
+          updateTodo(
+            context,
+            widget.todo.copyWith(list: list),
+            status,
+          );
+          setState(() {
+            toMyDay = !toMyDay;
+          });
           return Future.value(false);
         }
         return Future.value(true);
@@ -96,7 +121,14 @@ class _TodoListTileState extends State<TodoListTile> {
               color: widget.color,
               onChanged: (value) {
                 final newValue = value ?? false;
-                updateTodo(context, widget.todo.copyWith(isDone: newValue));
+                final status = newValue
+                    ? TodosOverviewChangedStatus.completed
+                    : TodosOverviewChangedStatus.notCompleted;
+                updateTodo(
+                  context,
+                  widget.todo.copyWith(isDone: newValue),
+                  status,
+                );
                 setState(() {
                   isDone = newValue;
                 });
@@ -119,16 +151,20 @@ class _TodoListTileState extends State<TodoListTile> {
               onChanged: (value) {
                 final newValue = value ?? false;
                 final list = [...widget.todo.list];
+                TodosOverviewChangedStatus status;
 
                 if (newValue) {
                   list.add(important);
+                  status = TodosOverviewChangedStatus.important;
                 } else {
                   list.removeWhere((e) => e == important);
+                  status = TodosOverviewChangedStatus.removedFromImportant;
                 }
 
                 updateTodo(
                   context,
                   widget.todo.copyWith(list: list),
+                  status,
                 );
                 setState(() {
                   isImportant = newValue;

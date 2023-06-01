@@ -44,8 +44,18 @@ class TodosOverviewBloc extends Bloc<TodosOverviewEvent, TodosOverviewState> {
     emit(state.copyWith(status: TodosOverviewStatus.loading));
 
     try {
-      await _todosRepository.saveTodo(event.todo);
-      emit(state.copyWith(status: TodosOverviewStatus.success));
+      if (event.todo.list.isNotEmpty) {
+        await _todosRepository.saveTodo(event.todo);
+      } else {
+        await _todosRepository.deleteTodo(event.todo.id);
+      }
+
+      emit(
+        state.copyWith(
+          status: TodosOverviewStatus.success,
+          changedTodoStatus: event.changedTodoStatus,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(status: TodosOverviewStatus.failure));
     }
@@ -59,12 +69,15 @@ class TodosOverviewBloc extends Bloc<TodosOverviewEvent, TodosOverviewState> {
   }
 
   Future<void> _onDeletedCollection(
-      TodosOverviewDeletedCollection event,
-      Emitter<TodosOverviewState> emit,
-      ) async {
+    TodosOverviewDeletedCollection event,
+    Emitter<TodosOverviewState> emit,
+  ) async {
+    emit(state.copyWith(status: TodosOverviewStatus.loading));
     try {
       await _todosRepository.deleteCollection(event.title);
-      emit(state.copyWith(status: TodosOverviewStatus.success));
+      emit(
+        state.copyWith(status: TodosOverviewStatus.success),
+      );
     } catch (e) {
       emit(state.copyWith(status: TodosOverviewStatus.failure));
     }

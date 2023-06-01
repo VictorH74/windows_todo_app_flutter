@@ -174,6 +174,7 @@ class TodosOverview extends StatelessWidget {
                     );
 
                     return TodoTileListView(
+                      collectionTitle: collectionTitle,
                       todos: todos.toList(),
                       themeColor: color,
                     );

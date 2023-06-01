@@ -16,13 +16,14 @@ Widget newTodoBottomSheet({
       child: FormContainer(
         handleSubmit: (value) {
           context.read<TodosOverviewBloc>().add(
-            TodosOverviewChangedTodo(
-              todo: Todo(
-                title: value,
-                list: [collectionName],
-              ),
-            ),
-          );
+                TodosOverviewChangedTodo(
+                  todo: Todo(
+                    title: value,
+                    list: [collectionName],
+                  ),
+                  changedTodoStatus: TodosOverviewChangedStatus.none,
+                ),
+              );
         },
       ),
     ),

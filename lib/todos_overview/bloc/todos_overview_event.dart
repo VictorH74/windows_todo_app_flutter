@@ -20,13 +20,22 @@ class TodosOverviewDeletedTodo extends TodosOverviewEvent {
 }
 
 class TodosOverviewChangedTodo extends TodosOverviewEvent {
-  TodosOverviewChangedTodo({required this.todo});
+  TodosOverviewChangedTodo({
+    required this.todo,
+    required this.changedTodoStatus,
+  });
 
   final Todo todo;
+  final TodosOverviewChangedStatus changedTodoStatus;
+
+  @override
+  List<Object?> get props => [todo, changedTodoStatus];
 }
 
 class TodosOverviewDeletedCollection extends TodosOverviewEvent {
-  TodosOverviewDeletedCollection({required this.title});
+  TodosOverviewDeletedCollection({
+    required this.title,
+  });
 
   final String title;
 
